@@ -13,6 +13,8 @@ import {
   getLanguageFriendlyName,
 } from "@lexical/code";
 
+import { INSERT_LAYOUT_COMMAND } from "../LayoutPlugin/LayoutPlugin";
+
 import { $generateHtmlFromNodes } from "@lexical/html";
 
 // import {
@@ -777,75 +779,109 @@ export default function ToolbarPlugin({
 
   // const exportToDocx = () => {
   //   editor.getEditorState().read(() => {
-  //     // Generate HTML content from the editor
   //     const htmlString = $generateHtmlFromNodes(editor);
   //     const tempDiv = document.createElement("div");
-  //     tempDiv.innerHTML = htmlString; // Parse string into DOM structure
+  //     tempDiv.innerHTML = htmlString;
   //     const editorContent = tempDiv;
 
   //     if (!(editorContent instanceof HTMLElement)) return;
 
-  //     console.log(editorContent); // Debugging
-  //     console.log("this is the editor content");
-
-  //     const array = [];
-  //     Array.from(editorContent.childNodes).forEach((node) => {
-  //       array.push(node);
-  //     });
-  //     console.log(array.length);
-  //     console.log(array);
-  //     console.log("this is the array");
-  //     console.log(array[0]);
-  //     console.log(array[1]);
-  //     console.log(array[2]);
-  //     console.log(array[3]);
-
-  //     // Iterate through child nodes
-  //     // Array.from(editorContent.childNodes).forEach((node) => console.log(node));
   //     const paragraphs: Paragraph[] = [];
 
-  //     const processNode = (node: HTMLElement) => {
-  //       if (node.nodeType === Node.TEXT_NODE && node.textContent) {
-  //         const parentElement = node.parentElement;
-  //         const style = parentElement
-  //           ? window.getComputedStyle(parentElement)
-  //           : null;
+  //     const getTextRunsFromElement = (element: HTMLElement): TextRun[] => {
+  //       const textRuns: TextRun[] = [];
 
-  //         const textRun = new TextRun({
-  //           text: node.textContent,
-  //           bold:
-  //             style?.fontWeight === "bold" ||
-  //             parseInt(style?.fontWeight || "0") >= 700,
-  //           italics: style?.fontStyle === "italic",
-  //           font: "Times New Roman",
-  //           size: 24,
-  //         });
+  //       const processTextNode = (node: Node, inheritedStyles: any = {}) => {
+  //         if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+  //           const style = window.getComputedStyle(element);
+  //           textRuns.push(
+  //             new TextRun({
+  //               text: node.textContent,
+  //               bold:
+  //                 inheritedStyles.bold ||
+  //                 style?.fontWeight === "bold" ||
+  //                 parseInt(style?.fontWeight || "0") >= 700,
+  //               italics:
+  //                 inheritedStyles.italics || style?.fontStyle === "italic",
+  //               font: "Times New Roman",
+  //               size: 24,
+  //             })
+  //           );
+  //         } else if (node instanceof HTMLElement) {
+  //           // Handle nested styling elements
+  //           const newStyles = { ...inheritedStyles };
+  //           if (node.tagName === "B" || node.tagName === "STRONG") {
+  //             newStyles.bold = true;
+  //           }
+  //           if (node.tagName === "I" || node.tagName === "EM") {
+  //             newStyles.italics = true;
+  //           }
 
-  //         // Find or create paragraph for this text run
-  //         let currentParagraph = paragraphs[paragraphs.length - 1];
-  //         if (!currentParagraph || node.parentElement?.tagName === "P") {
-  //           currentParagraph = new Paragraph({ children: [] });
-  //           paragraphs.push(currentParagraph);
+  //           // Process children with inherited styles
+  //           Array.from(node.childNodes).forEach((child) =>
+  //             processTextNode(child, newStyles)
+  //           );
   //         }
-  //         currentParagraph.addChildElement(textRun);
-  //       } else if (node instanceof HTMLElement) {
+  //       };
+
+  //       Array.from(element.childNodes).forEach((node) => processTextNode(node));
+
+  //       return textRuns;
+  //     };
+
+  //     const processNode = (node: HTMLElement) => {
+  //       if (node instanceof HTMLElement) {
+  //         // Handle headings
   //         if (node.tagName === "H1") {
   //           paragraphs.push(
   //             new Paragraph({
-  //               text: node.textContent || "",
+  //               children: getTextRunsFromElement(node),
   //               heading: "Heading1",
   //               alignment: AlignmentType.CENTER,
   //             })
   //           );
-  //         } else if (node.tagName === "H2") {
-  //           paragraphs.push(
-  //             new Paragraph({
-  //               text: node.textContent || "",
-  //               heading: "Heading2",
-  //             })
+  //         }
+  //         // Handle two-column layout
+  //         else if (
+  //           node.hasAttribute("data-lexical-layout-container") &&
+  //           node.style.gridTemplateColumns === "1fr 1fr"
+  //         ) {
+  //           const columns = Array.from(node.children).filter((child) =>
+  //             child.hasAttribute("data-lexical-layout-item")
   //           );
+
+  //           if (columns.length === 2) {
+  //             // Process each column
+  //             columns.forEach((column) => {
+  //               const paragraphElements = column.getElementsByTagName("p");
+  //               Array.from(paragraphElements).forEach((p) => {
+  //                 if (p.textContent?.trim()) {
+  //                   paragraphs.push(
+  //                     new Paragraph({
+  //                       children: getTextRunsFromElement(p),
+  //                       spacing: { after: 200 },
+  //                     })
+  //                   );
+  //                 }
+  //               });
+  //             });
+  //           }
+  //         }
+  //         // Handle regular paragraphs
+  //         else if (node.tagName === "P") {
+  //           if (node.textContent?.trim()) {
+  //             paragraphs.push(
+  //               new Paragraph({
+  //                 children: getTextRunsFromElement(node),
+  //                 spacing: { after: 200 },
+  //               })
+  //             );
+  //           } else {
+  //             // Add empty paragraph for spacing
+  //             paragraphs.push(new Paragraph({}));
+  //           }
   //         } else {
-  //           // Process child nodes
+  //           // Process child nodes recursively
   //           Array.from(node.childNodes).forEach((child) =>
   //             processNode(child as HTMLElement)
   //           );
@@ -853,11 +889,12 @@ export default function ToolbarPlugin({
   //       }
   //     };
 
+  //     // Process all nodes
   //     Array.from(editorContent.childNodes).forEach((node) =>
   //       processNode(node as HTMLElement)
   //     );
 
-  //     // Create a new document
+  //     // Create document
   //     const doc = new Document({
   //       sections: [
   //         {
@@ -869,15 +906,11 @@ export default function ToolbarPlugin({
   //                 height: convertInchesToTwip(11.69), // A4 height
   //               },
   //               margin: {
-  //                 top: convertInchesToTwip(0.79), // 20mm in inches
+  //                 top: convertInchesToTwip(0.79),
   //                 right: convertInchesToTwip(0.79),
   //                 bottom: convertInchesToTwip(0.79),
   //                 left: convertInchesToTwip(0.79),
   //               },
-  //             },
-  //             column: {
-  //               space: convertInchesToTwip(0.24), // 6mm gap
-  //               count: 2,
   //             },
   //           },
   //           children: paragraphs,
@@ -885,7 +918,7 @@ export default function ToolbarPlugin({
   //       ],
   //     });
 
-  //     // Generate and download the document
+  //     // Generate and download
   //     Packer.toBlob(doc).then((blob) => {
   //       const url = window.URL.createObjectURL(blob);
   //       const a = document.createElement("a");
@@ -905,137 +938,114 @@ export default function ToolbarPlugin({
       const editorContent = tempDiv;
 
       if (!(editorContent instanceof HTMLElement)) return;
+      console.log(editorContent);
 
-      const paragraphs: Paragraph[] = [];
+      // Create document sections
+      const sections = [];
 
-      const getTextRunsFromElement = (element: HTMLElement): TextRun[] => {
-        const textRuns: TextRun[] = [];
-
-        const processTextNode = (node: Node, inheritedStyles: any = {}) => {
-          if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
-            const style = window.getComputedStyle(element);
-            textRuns.push(
+      // Title section
+      const titleSection = {
+        properties: {
+          type: SectionType.CONTINUOUS,
+          page: {
+            size: {
+              width: convertInchesToTwip(8.27),
+              height: convertInchesToTwip(11.69),
+            },
+            margin: {
+              top: convertInchesToTwip(1),
+              right: convertInchesToTwip(1),
+              bottom: convertInchesToTwip(1),
+              left: convertInchesToTwip(1),
+            },
+          },
+        },
+        children: [
+          new Paragraph({
+            children: [
               new TextRun({
-                text: node.textContent,
-                bold:
-                  inheritedStyles.bold ||
-                  style?.fontWeight === "bold" ||
-                  parseInt(style?.fontWeight || "0") >= 700,
-                italics:
-                  inheritedStyles.italics || style?.fontStyle === "italic",
-                font: "Times New Roman",
-                size: 24,
-              })
-            );
-          } else if (node instanceof HTMLElement) {
-            // Handle nested styling elements
-            const newStyles = { ...inheritedStyles };
-            if (node.tagName === "B" || node.tagName === "STRONG") {
-              newStyles.bold = true;
-            }
-            if (node.tagName === "I" || node.tagName === "EM") {
-              newStyles.italics = true;
-            }
+                text: editorContent.querySelector("h1")?.textContent || "",
+                bold: true,
+                size: 32,
+                font: "Nirmala UI",
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: {
+              after: 400,
+              before: 400,
+            },
+          }),
+          new Paragraph({
+            spacing: {
+              after: 200,
+            },
+          }),
+        ],
+      };
+      sections.push(titleSection);
 
-            // Process children with inherited styles
-            Array.from(node.childNodes).forEach((child) =>
-              processTextNode(child, newStyles)
-            );
-          }
-        };
-
-        Array.from(element.childNodes).forEach((node) => processTextNode(node));
-
-        return textRuns;
+      // Content section
+      const contentSection = {
+        properties: {
+          type: SectionType.CONTINUOUS,
+          page: {
+            size: {
+              width: convertInchesToTwip(8.27),
+              height: convertInchesToTwip(11.69),
+            },
+            margin: {
+              top: convertInchesToTwip(1),
+              right: convertInchesToTwip(1),
+              bottom: convertInchesToTwip(1),
+              left: convertInchesToTwip(1),
+            },
+          },
+          column: {
+            space: convertInchesToTwip(0.5),
+            count: 2,
+          },
+        },
+        children: [] as Paragraph[],
       };
 
-      const processNode = (node: HTMLElement) => {
-        if (node instanceof HTMLElement) {
-          // Handle headings
-          if (node.tagName === "H1") {
-            paragraphs.push(
-              new Paragraph({
-                children: getTextRunsFromElement(node),
-                heading: "Heading1",
-                alignment: AlignmentType.CENTER,
-              })
-            );
-          }
-          // Handle two-column layout
-          else if (
-            node.hasAttribute("data-lexical-layout-container") &&
-            node.style.gridTemplateColumns === "1fr 1fr"
-          ) {
-            const columns = Array.from(node.children).filter((child) =>
-              child.hasAttribute("data-lexical-layout-item")
-            );
-
-            if (columns.length === 2) {
-              // Process each column
-              columns.forEach((column) => {
-                const paragraphElements = column.getElementsByTagName("p");
-                Array.from(paragraphElements).forEach((p) => {
-                  if (p.textContent?.trim()) {
-                    paragraphs.push(
-                      new Paragraph({
-                        children: getTextRunsFromElement(p),
-                        spacing: { after: 200 },
-                      })
-                    );
-                  }
-                });
-              });
-            }
-          }
-          // Handle regular paragraphs
-          else if (node.tagName === "P") {
-            if (node.textContent?.trim()) {
-              paragraphs.push(
-                new Paragraph({
-                  children: getTextRunsFromElement(node),
-                  spacing: { after: 200 },
-                })
-              );
-            } else {
-              // Add empty paragraph for spacing
-              paragraphs.push(new Paragraph({}));
-            }
-          } else {
-            // Process child nodes recursively
-            Array.from(node.childNodes).forEach((child) =>
-              processNode(child as HTMLElement)
-            );
-          }
-        }
-      };
-
-      // Process all nodes
-      Array.from(editorContent.childNodes).forEach((node) =>
-        processNode(node as HTMLElement)
+      // Process column content
+      const columnContainer = editorContent.querySelector(
+        '[data-lexical-layout-container="true"]'
       );
+      if (columnContainer) {
+        const columns = Array.from(columnContainer.children).filter((child) =>
+          child.hasAttribute("data-lexical-layout-item")
+        );
+
+        columns.forEach((column) => {
+          const paragraphText = column.textContent?.trim() || "";
+          if (paragraphText) {
+            contentSection.children.push(
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: paragraphText,
+                    size: 24,
+                    font: "Nirmala UI",
+                  }),
+                ],
+                spacing: {
+                  after: 240,
+                  line: 360,
+                  lineRule: "auto",
+                },
+              })
+            );
+          }
+        });
+      }
+
+      sections.push(contentSection);
 
       // Create document
       const doc = new Document({
-        sections: [
-          {
-            properties: {
-              type: SectionType.CONTINUOUS,
-              page: {
-                size: {
-                  width: convertInchesToTwip(8.27), // A4 width
-                  height: convertInchesToTwip(11.69), // A4 height
-                },
-                margin: {
-                  top: convertInchesToTwip(0.79),
-                  right: convertInchesToTwip(0.79),
-                  bottom: convertInchesToTwip(0.79),
-                  left: convertInchesToTwip(0.79),
-                },
-              },
-            },
-            children: paragraphs,
-          },
-        ],
+        sections: sections,
       });
 
       // Generate and download
@@ -1381,44 +1391,7 @@ export default function ToolbarPlugin({
                   <i className="icon image" />
                   <span className="text">Image</span>
                 </DropDownItem>
-                <DropDownItem
-                  onClick={() => {
-                    showModal("Insert Inline Image", (onClose) => (
-                      <InsertInlineImageDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className="item"
-                >
-                  <i className="icon image" />
-                  <span className="text">Inline Image</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() =>
-                    insertGifOnClick({
-                      altText: "Cat typing on a laptop",
-                      src: catTypingGif,
-                    })
-                  }
-                  className="item"
-                >
-                  <i className="icon gif" />
-                  <span className="text">GIF</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() => {
-                    activeEditor.dispatchCommand(
-                      INSERT_EXCALIDRAW_COMMAND,
-                      undefined
-                    );
-                  }}
-                  className="item"
-                >
-                  <i className="icon diagram-2" />
-                  <span className="text">Excalidraw</span>
-                </DropDownItem>
+
                 <DropDownItem
                   onClick={() => {
                     showModal("Insert Table", (onClose) => (
@@ -1433,20 +1406,7 @@ export default function ToolbarPlugin({
                   <i className="icon table" />
                   <span className="text">Table</span>
                 </DropDownItem>
-                <DropDownItem
-                  onClick={() => {
-                    showModal("Insert Poll", (onClose) => (
-                      <InsertPollDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className="item"
-                >
-                  <i className="icon poll" />
-                  <span className="text">Poll</span>
-                </DropDownItem>
+
                 <DropDownItem
                   onClick={() => {
                     showModal("Insert Columns Layout", (onClose) => (
@@ -1461,61 +1421,6 @@ export default function ToolbarPlugin({
                   <i className="icon columns" />
                   <span className="text">Columns Layout</span>
                 </DropDownItem>
-
-                <DropDownItem
-                  onClick={() => {
-                    showModal("Insert Equation", (onClose) => (
-                      <InsertEquationDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className="item"
-                >
-                  <i className="icon equation" />
-                  <span className="text">Equation</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() => {
-                    editor.update(() => {
-                      const root = $getRoot();
-                      const stickyNode = $createStickyNode(0, 0);
-                      root.append(stickyNode);
-                    });
-                  }}
-                  className="item"
-                >
-                  <i className="icon sticky" />
-                  <span className="text">Sticky Note</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() => {
-                    editor.dispatchCommand(
-                      INSERT_COLLAPSIBLE_COMMAND,
-                      undefined
-                    );
-                  }}
-                  className="item"
-                >
-                  <i className="icon caret-right" />
-                  <span className="text">Collapsible container</span>
-                </DropDownItem>
-                {EmbedConfigs.map((embedConfig) => (
-                  <DropDownItem
-                    key={embedConfig.type}
-                    onClick={() => {
-                      activeEditor.dispatchCommand(
-                        INSERT_EMBED_COMMAND,
-                        embedConfig.type
-                      );
-                    }}
-                    className="item"
-                  >
-                    {embedConfig.icon}
-                    <span className="text">{embedConfig.contentName}</span>
-                  </DropDownItem>
-                ))}
               </DropDown>
             </>
           )}
@@ -1528,15 +1433,25 @@ export default function ToolbarPlugin({
         editor={activeEditor}
         isRTL={toolbarState.isRTL}
       />
-
+{/* 
       <button
+        onClick={() => {
+          activeEditor.dispatchCommand(INSERT_LAYOUT_COMMAND, "1fr 1fr");
+        }}
+        className="item"
+      >
+        <i className="icon columns" />
+        <span className="text">Columns Layout</span>
+      </button> */}
+      
+      {/* <button
         onClick={exportToDocx}
         className="p-2 hover:bg-gray-100 rounded flex items-center gap-2 bg-green-50 text-green-600"
         title="Export to Word"
       >
         <FileText size={18} />
         <span className="text-sm font-medium">Export DOCX</span>
-      </button>
+      </button> */}
 
       {modal}
     </div>

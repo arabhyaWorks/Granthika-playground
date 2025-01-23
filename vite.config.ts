@@ -46,6 +46,11 @@ export default defineConfig({
       }
     }
   },
-  publicDir: 'public'
+  publicDir: 'public',
+  server: {
+    hmr: {
+      overlay: false, // Disable the HMR error overlay
+    },
+  },
 
 })

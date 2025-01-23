@@ -88,7 +88,12 @@ header h1 {
   max-width: 100%;
   position: relative;
   resize: vertical;
+  /* background-color: red; */
   z-index: -1;
+  /* min-height: 297mm; */
+  min-height: 50mm;
+  /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); */
+  transition: transform 0.3s ease;
 }
 
 .test-recorder-output {
@@ -1783,3 +1788,6 @@ button.item.dropdown-item-active i {
   margin-bottom: 10px;
   width: 100%;
 }
+
+
+

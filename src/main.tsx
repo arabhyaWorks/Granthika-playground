@@ -41,6 +41,14 @@ window.addEventListener('unhandledrejection', ({reason}) =>
   showErrorOverlay(reason),
 );
 
+const resizeObserverErrorHandler = (e) => {
+  if (e.message === "ResizeObserver loop completed with undelivered notifications.") {
+    e.preventDefault();
+  }
+};
+
+window.addEventListener("error", resizeObserverErrorHandler);
+
 createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <App />
