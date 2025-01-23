@@ -15,18 +15,20 @@ export default function EditorWithPageBreak() {
       for (let entry of entries) {
         const height = entry.contentRect.height;
 
-        // Convert 50mm to pixels (based on 96dpi, 1mm = 3.78px)
-        const minHeightPx = 100 * 3.78;
+        console.log("Height:", height);
 
-        // Only insert a page break if the height is exceeded and hasn't been inserted yet
-        if (height > minHeightPx && !hasInsertedPageBreak) {
-          setHasInsertedPageBreak(true); // Prevent further page breaks
-          requestAnimationFrame(() => {
-            editor.update(() => {
-              editor.dispatchCommand(INSERT_PAGE_BREAK, undefined);
-            });
-          });
-        }
+        // // Convert 50mm to pixels (based on 96dpi, 1mm = 3.78px)
+        // const minHeightPx = 100 * 3.78;
+
+        // // Only insert a page break if the height is exceeded and hasn't been inserted yet
+        // if (height > minHeightPx && !hasInsertedPageBreak) {
+        //   setHasInsertedPageBreak(true); // Prevent further page breaks
+        //   requestAnimationFrame(() => {
+        //     editor.update(() => {
+        //       editor.dispatchCommand(INSERT_PAGE_BREAK, undefined);
+        //     });
+        //   });
+        // }
       }
     });
 
@@ -38,7 +40,7 @@ export default function EditorWithPageBreak() {
   }, [editor, hasInsertedPageBreak]);
 
   return (
-    <div ref={editorRef} className="editor-container">
+    <div ref={editorRef}  className="editor-container">  
       <Editor />
     </div>
   );

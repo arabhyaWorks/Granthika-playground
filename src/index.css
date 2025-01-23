@@ -6,11 +6,15 @@
  *
  */
 
-@import 'https://fonts.googleapis.com/css?family=Reenie+Beanie';
+@import "https://fonts.googleapis.com/css?family=Reenie+Beanie";
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular',
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    ".SFNSText-Regular",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -53,10 +57,11 @@ header h1 {
   position: relative;
   line-height: 1.7;
   font-weight: 400;
+  /* background-color: red; */
 }
 
 .editor-shell .editor-container {
-  background: #fff;
+  /* background: #fff; */
   position: relative;
   display: block;
   border-bottom-left-radius: 10px;
@@ -88,12 +93,14 @@ header h1 {
   max-width: 100%;
   position: relative;
   resize: vertical;
-  /* background-color: red; */
+  background-color: white;
+  border-radius: 10px;
   z-index: -1;
   /* min-height: 297mm; */
-  min-height: 50mm;
-  /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); */
+  max-height: 500mm;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  /* overflow: hidden; */
 }
 
 .test-recorder-output {
@@ -149,7 +156,7 @@ pre::-webkit-scrollbar-thumb {
 }
 
 .editor-dev-button::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 10px;
   right: 10px;
@@ -197,7 +204,7 @@ pre::-webkit-scrollbar-thumb {
 }
 
 .test-recorder-button::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 8px;
   right: 8px;
@@ -743,7 +750,9 @@ i.page-break,
   z-index: 100;
   display: block;
   position: fixed;
-  box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 12px 28px 0 rgba(0, 0, 0, 0.2),
+    0 2px 4px 0 rgba(0, 0, 0, 0.1),
     inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   min-height: 40px;
@@ -978,11 +987,11 @@ i.page-break,
   transition: transform 0.2s;
 }
 
-.switch button[aria-checked='true'] {
+.switch button[aria-checked="true"] {
   background-color: rgb(24, 119, 242);
 }
 
-.switch button[aria-checked='true'] span {
+.switch button[aria-checked="true"] span {
   transform: translateX(20px);
 }
 
@@ -1477,17 +1486,17 @@ button.action-button:disabled {
 .toolbar {
   display: flex;
   margin-bottom: 1px;
-  background: #fff;
+  background: white;
   padding: 4px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
   vertical-align: middle;
   overflow: auto;
   height: 36px;
   position: sticky;
   top: 0;
   z-index: 2;
-  overflow-y: hidden; /* disable vertical scroll*/
+  overflow-y: hidden;
 }
 
 button.toolbar-item {
@@ -1612,7 +1621,7 @@ button.toolbar-item.active i {
   padding: 20px 10px;
   position: relative;
   border: 1px solid #e8e8e8;
-  font-family: 'Reenie Beanie';
+  font-family: "Reenie Beanie";
   font-size: 24px;
   border-bottom-right-radius: 60px 5px;
   display: block;
@@ -1620,7 +1629,7 @@ button.toolbar-item.active i {
 }
 
 .sticky-note:after {
-  content: '';
+  content: "";
   position: absolute;
   z-index: -1;
   right: -0px;
@@ -1788,6 +1797,3 @@ button.item.dropdown-item-active i {
   margin-bottom: 10px;
   width: 100%;
 }
-
-
-

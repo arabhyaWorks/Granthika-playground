@@ -215,13 +215,13 @@ function App(): JSX.Element {
             <header>
               <h1>Granthika Playground</h1>
             </header>
-            <div className="editor-shell">
-              <Editor />
-            </div>
-
             {/* <div className="editor-shell">
-              <EditorWithPageBreak />
+              <Editor />
             </div> */}
+
+             <div className="editor-shell">
+              <EditorWithPageBreak />
+            </div> 
             {/* <Settings /> */}
             {/* {isDevPlayground ? <DocsPlugin /> : null} */}
             {/* {isDevPlayground ? <PasteLogPlugin /> : null} */}
